@@ -1,0 +1,7 @@
+---
+
+- name: restart home assistant
+  supervisorctl:
+    name: '{{ home_assistant_instance_name }}'
+    state: restarted
+  become: yes

@@ -1,0 +1,21 @@
+---
+
+dependencies:
+  - role: daemon
+    daemon_user: '{{ home_assistant_daemon_user }}'
+    daemon_group: '{{ home_assistant_daemon_group }}'
+    daemon_user_id: '{{ home_assistant_daemon_user_id }}'
+    daemon_group_id: '{{ home_assistant_daemon_group_id }}'
+    daemon_directory: '{{ home_assistant_app_directory }}'
+    tags: [home-assistant, dependencies]
+    when: home_assistant_role_action == 'setup'
+
+  - role: logrotate
+    logrotate_log_rotations: '{{ home_assistant_log_rotations }}'
+    logrotate_role_action: setup
+    tags: [home-assistant, dependencies]
+    when: home_assistant_role_action == 'setup' and home_assistant_log_rotations|length > 0
+
+  - role: supervisor
+    tags: [home-assistant, dependencies]
+    when: home_assistant_role_action == 'setup'

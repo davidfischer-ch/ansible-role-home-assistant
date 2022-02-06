@@ -1,0 +1,9 @@
+---
+
+- block:
+    - name: Check variables
+      assert:
+        that:
+          - home_assistant_instance_name is defined
+          - home_assistant_role_action in home_assistant_role_actions
+  tags: always

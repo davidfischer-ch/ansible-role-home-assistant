@@ -1,0 +1,37 @@
+# https://www.home-assistant.io/installation/nuc/
+home_assistant_packages:
+  - libffi-dev
+  - libssl-dev
+  - libjpeg-dev
+  - zlib1g-dev
+  - autoconf
+  - build-essential
+  - libopenjp2-7
+  - libtiff5
+
+# Python Package Manager
+home_assistant_pip_environment: '{{ python_pip_environment }}'
+home_assistant_pip_umask: '{{ python_pip_umask }}'
+
+# Instance Parameters
+home_assistant_daemon_group: '{{ home_assistant_daemon_user }}'
+home_assistant_daemon_group_id: '{{ omit }}'
+home_assistant_daemon_user: '{{ home_assistant_instance_name }}'
+home_assistant_daemon_user_id: '{{ omit }}'
+home_assistant_debug_enabled: yes
+
+# Directories
+home_assistant_app_directory: '/var/app/{{ home_assistant_instance_name }}'
+# home_assistant_data_directory: '/data/{{ home_assistant_instance_name }}'
+home_assistant_log_directory: '/var/log/{{ home_assistant_instance_name }}'
+
+# Logging
+home_assistant_log_rotations_frequency: daily
+home_assistant_log_rotations_max_count: 49
+home_assistant_log_rotations_config_file: logrotate.j2
+home_assistant_log_rotations:
+  - name: '{{ home_assistant_instance_name }}'
+    config_file: '{{ home_assistant_log_rotations_config_file }}'
+
+# Add-Ons
+home_assistant_configurator_enabled: yes

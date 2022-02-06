@@ -1,0 +1,103 @@
+---
+
+# Prerequisites
+
+- name: Install Home Assistant packages
+  package:
+    name: '{{ home_assistant_packages }}'
+    state: present
+  become: yes
+  tags: packages
+
+- block:
+    - name: Create Home Assistant directories
+      file:
+        name: '{{ item.name }}'
+        owner: '{{ home_assistant_daemon_user }}'
+        group: '{{ home_assistant_daemon_group }}'
+        mode: '{{ item.mode }}'
+        state: directory
+      loop:
+        - { name: '{{ home_assistant_app_directory }}',        mode: 755 }
+        - { name: '{{ home_assistant_app_directory }}/config', mode: 750 }
+        - { name: '{{ home_assistant_log_directory }}',        mode: 755 }
+  become: yes
+  tags: config
+
+# Release
+
+- block:
+    # Be aware of https://bugs.python.org/issue34224
+    - name: Setup Home Assistant virtualenv
+      pip:
+        name: [pip, wheel, setuptools]
+        state: latest
+        umask: '{{ home_assistant_pip_umask }}'
+        virtualenv: '{{ home_assistant_app_directory }}/venv'
+        virtualenv_python: '{{ home_assistant_python_executable }}'
+      environment: '{{ home_assistant_pip_environment }}'
+
+    # Be aware of https://bugs.python.org/issue34224
+    - name: Install PostgreSQL client
+      pip:
+        name: psycopg2-binary
+        state: forcereinstall
+        umask: '{{ home_assistant_pip_umask }}'
+        version: '{{ home_assistant_psycopg2_version }}'
+        virtualenv: '{{ home_assistant_app_directory }}/venv'
+        virtualenv_python: '{{ home_assistant_python_executable }}'
+      environment: '{{ home_assistant_pip_environment }}'
+      notify: restart home assistant
+
+    # Be aware of https://bugs.python.org/issue34224
+    - name: Install Home Assistant
+      pip:
+        name: homeassistant
+        state: forcereinstall
+        umask: '{{ home_assistant_pip_umask }}'
+        version: '{{ home_assistant_version }}'
+        virtualenv: '{{ home_assistant_app_directory }}/venv'
+        virtualenv_python: '{{ home_assistant_python_executable }}'
+      environment: '{{ home_assistant_pip_environment }}'
+      notify: restart home assistant
+
+    # See https://github.com/danielperna84/hass-configurator/wiki/Installation
+
+    # Be aware of https://bugs.python.org/issue34224
+    - name: Install Home Assistant Configurator
+      pip:
+        name: hass-configurator
+        state: "{{ home_assistant_configurator_enabled|bool|ternary('forcereinstall', 'absent') }}"
+        umask: '{{ home_assistant_pip_umask }}'
+        version: '{{ home_assistant_configurator_version }}'
+        virtualenv: '{{ home_assistant_app_directory }}/venv'
+        virtualenv_python: '{{ home_assistant_python_executable }}'
+      environment: '{{ home_assistant_pip_environment }}'
+      notify: restart home assistant
+  become: yes
+  become_user: '{{ home_assistant_daemon_user }}'
+  tags: update
+
+# Process
+
+- block:
+    - name: Configure Home Assistant service
+      template:
+        src: supervisor.conf.j2
+        dest: /etc/supervisor/conf.d/{{ home_assistant_instance_name }}.conf
+        mode: 0644
+      notify: restart home assistant
+
+    - name: Install Home Assistant service
+      supervisorctl:
+        name: '{{ home_assistant_instance_name }}'
+        state: present
+  become: yes
+  tags: config
+
+- name: Start Home Assistant service
+  supervisorctl:
+    name: '{{ home_assistant_instance_name }}'
+    state: started
+  become: yes
+  tags: services

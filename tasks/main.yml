@@ -1,0 +1,8 @@
+# Installation and management of an instance of Home Assistant
+# See https://fisch3r-net.atlassian.net/wiki/spaces/VIRY/pages/206798849/Mini+Serveur#Home-Assistant
+---
+
+- block:
+    - import_tasks: facts.yml
+    - import_tasks: '{{ home_assistant_role_action }}.yml'
+  tags: home-assistant

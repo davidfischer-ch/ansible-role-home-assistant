@@ -1,0 +1,12 @@
+/var/log/{{ home_assistant_instance_name }}/*.log {
+       {{ home_assistant_log_rotations_frequency }}
+       dateext
+       missingok
+       rotate {{ home_assistant_log_rotations_max_count|int }}
+       compress
+       delaycompress
+       nomail
+       notifempty
+       create 644 {{ home_assistant_daemon_user }} {{ home_assistant_daemon_group }}
+       sharedscripts
+}
