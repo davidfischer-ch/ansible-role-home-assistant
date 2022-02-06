@@ -115,10 +115,10 @@ Example for installing Home Assistant on a host.
 ### Config Template
 
 ```
-{% include 'templates/site.reject-unkown.conf.j2' %}
-
 {% if item.value.with_ssl|bool and item.value.redirect_ssl|bool %}
 server {
+    {% include 'templates/site.geoip-blocking.conf.j2' %}
+
     listen {{ nginx_port|int }};
     server_name {{ item.value.domains|join(' ') }};
     rewrite ^ https://$http_host$request_uri? permanent;
@@ -126,6 +126,8 @@ server {
 {% endif %}
 
 server {
+    {% include 'templates/site.geoip-blocking.conf.j2' %}
+
     {% if item.value.with_ssl|bool %}
     listen {{ nginx_port_ssl|int }} {{ item.value.with_http2|bool|ternary('ssl http2', '') }};
     {% include 'templates/site.ssl.conf.j2' %}
@@ -133,42 +135,35 @@ server {
     listen {{ nginx_port|int }};
     {% endif %}
 
-    {% include 'templates/site.real_ip.conf.j2' %}
-
-    {% if not item.value.with_ssl|bool and item.value.redirect_ssl|bool %}
-    if ($http_x_forwarded_proto != 'https') {
-        rewrite ^ https://$host$request_uri? permanent;
-    }
-    {% endif %}
+    {% include 'templates/site.security-headers.conf.j2' %}
 
     server_name {{ item.value.domains|join(' ') }};
 
-    gzip off;  # Security - http://breachattack.com/resources/BREACH%20-%20SSL,%20gone%20in%2030%20seconds.pdf
-    gzip_proxied any;
-    gzip_types application/javascript application/json text/css text/javascript text/xml;
+    client_max_body_size 0;
 
-    client_max_body_size {{ item.value.max_body_size }};
+    # Logging --------------------------------------------------------------------------------------
 
-    access_log /var/log/nginx/{{ item.value.name }}/access.log;
-    error_log /var/log/nginx/{{ item.value.name }}/error.log warn;
+    access_log /var/log/nginx/{{ item.value.name }}/access.log combined if=$condition;
+    error_log  /var/log/nginx/{{ item.value.name }}/error.log  warn;
 
-    # location /robots.txt {
-    #     alias /some/path/robots.txt;
-    # }
+    # Locations ------------------------------------------------------------------------------------
 
-    # location /favicon/ {
-    #     alias /some/path/favicons/;
-    # }
+    {% include 'templates/site.certbot-challenge.conf.j2' %}
 
     location / {
-        access_log  on;
-        autoindex   on;
-        {% if not item.value.debug|bool %}
-        expires     max;
-        {% endif %}
-        gzip        on;
-        sendfile    off;  # Avoid Nginx serving outdated static files
-        alias {{ item.value.directory }}/;
+        # Security - http://breachattack.com/resources/BREACH%20-%20SSL,%20gone%20in%2030%20seconds.pdf
+        # length_hiding on;
+        # length_hiding_max 512;
+
+        proxy_pass                         http://{{ item.value.address }}:{{ item.value.port|int }};
+        proxy_http_version                 1.1;
+        proxy_set_header Connection        "Upgrade";
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_ssl_session_reuse            off;
     }
 }
 ```
