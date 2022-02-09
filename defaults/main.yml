@@ -1,13 +1,15 @@
 # https://www.home-assistant.io/installation/nuc/
 home_assistant_packages:
-  - libffi-dev
-  - libssl-dev
-  - libjpeg-dev
-  - zlib1g-dev
   - autoconf
   - build-essential
+  - libavdevice-dev
+  - libavformat-dev
+  - libffi-dev
+  - libjpeg-dev
   - libopenjp2-7
+  - libssl-dev
   - libtiff5
+  - zlib1g-dev
 
 # Python Package Manager
 home_assistant_pip_environment: '{{ python_pip_environment }}'
