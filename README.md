@@ -25,6 +25,8 @@ Example for installing Home Assistant on a host.
 - hosts:
     - domotic
   roles:
+    - postgresql
+    - postgresql-databases
     - deconz
     - home-assistant
     - nginx
@@ -32,6 +34,7 @@ Example for installing Home Assistant on a host.
     deconz_role_action: setup
     home_assistant_role_action: setup
     nginx_role_action: setup
+    postgresql_databases_role_action: setup
 
     # Python
 
@@ -50,18 +53,40 @@ Example for installing Home Assistant on a host.
 
     # Domotic
 
+    postgresql_version: 12
+
+    postgresql_allocated_ram: 4096  # MB
+
+    postgresql_extensions:
+      - timescaledb
+
+    postgresql_listen_addresses:
+      - localhost
+
+    postgresql_is_master: yes
+
+    postgresql_databases:
+      template1:
+        name: template1
+        extensions: []
+      application:
+        template: template1
+        extensions:
+          - timescaledb
+        name: '{{ home_assistant_instance_name }}'
+        local_users:
+          - name: '{{ home_assistant_instance_name }}'
+
     deconz_instance_name: deconz
 
     home_assistant_instance_name: homeassistant
-    home_assistant_python_executable: python3.8
+    home_assistant_python_executable: python3.9
 
-    home_assistant_version: 2022.2.2            # 06-02-2022 Released 04-02-2022
-    home_assistant_configurator_version: 0.4.1  # 06-02-2022 Released 23-04-2021
-    home_assistant_psycopg2_version: 2.9.3      # 06-02-2022 Released 29-12-2021
-
-    home_data_instance_name: homedata
-    home_data_python_executable: python3.8
-    home_data_source_directory: '{{ playbook_dir }}/../../home-assistant/data/'
+    # pypi.org (homeassistant + hass-configurator + psycopg2-binary)
+    #home_assistant_version: 2021.12.10
+    home_assistant_version: 2022.3.1            # 06-03-2022 Released 04-03-2022
+    home_assistant_configurator_version: 0.4.1  # 09-02-2022 Released 23-04-2021
+    home_assistant_psycopg2_version: 2.9.3      # 09-02-2022 Released 29-12-2021
 
     nginx_version: release-1.21.6  # 06-02-2022 Released 25-01-2022
     nginx_daemon_mode: supervisor
