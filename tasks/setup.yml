@@ -18,9 +18,9 @@
         mode: '{{ item.mode }}'
         state: directory
       loop:
-        - { name: '{{ home_assistant_app_directory }}',        mode: 755 }
-        - { name: '{{ home_assistant_app_directory }}/config', mode: 750 }
-        - { name: '{{ home_assistant_log_directory }}',        mode: 755 }
+        - { name: '{{ home_assistant_app_directory }}',        mode: 0755 }
+        - { name: '{{ home_assistant_app_directory }}/config', mode: 0750 }
+        - { name: '{{ home_assistant_log_directory }}',        mode: 0755 }
   become: yes
   tags: config
 
