@@ -18,9 +18,9 @@
         mode: '{{ item.mode }}'
         state: directory
       loop:
-        - { name: '{{ home_assistant_app_directory }}',        mode: 0755 }
-        - { name: '{{ home_assistant_app_directory }}/config', mode: 0750 }
-        - { name: '{{ home_assistant_log_directory }}',        mode: 0755 }
+        - { name: '{{ home_assistant_app_directory }}',        mode: '755' }
+        - { name: '{{ home_assistant_app_directory }}/config', mode: '750' }
+        - { name: '{{ home_assistant_log_directory }}',        mode: '755' }
   become: yes
   tags: config
 
@@ -85,7 +85,7 @@
       template:
         src: supervisor.conf.j2
         dest: /etc/supervisor/conf.d/{{ home_assistant_instance_name }}.conf
-        mode: 0644
+        mode: '644'
       notify: restart home assistant
 
     - name: Install Home Assistant service
