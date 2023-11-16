@@ -10,6 +10,9 @@ home_assistant_packages:
   - libssl-dev
   - libtiff5
   - zlib1g-dev
+  # https://www.home-assistant.io/integrations/bluetooth
+  # - dbus-broker NEVER
+  - bluez
 
 # Python Package Manager
 home_assistant_pip_environment: '{{ python_pip_environment }}'
