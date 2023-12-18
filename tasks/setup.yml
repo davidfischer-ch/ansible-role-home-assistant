@@ -3,15 +3,15 @@
 # Prerequisites
 
 - name: Install Home Assistant packages
-  package:
+  ansible.builtin.package:
     name: '{{ home_assistant_packages }}'
     state: present
-  become: yes
+  become: true
   tags: packages
 
 - block:
     - name: Create Home Assistant directories
-      file:
+      ansible.builtin.file:
         name: '{{ item.name }}'
         owner: '{{ home_assistant_daemon_user }}'
         group: '{{ home_assistant_daemon_group }}'
@@ -21,7 +21,7 @@
         - { name: '{{ home_assistant_app_directory }}',        mode: '755' }
         - { name: '{{ home_assistant_app_directory }}/config', mode: '750' }
         - { name: '{{ home_assistant_log_directory }}',        mode: '755' }
-  become: yes
+  become: true
   tags: config
 
 # Release
@@ -29,7 +29,7 @@
 - block:
     # Be aware of https://bugs.python.org/issue34224
     - name: Setup Home Assistant virtualenv
-      pip:
+      ansible.builtin.pip:
         name: [pip, wheel, setuptools]
         state: latest
         umask: '{{ home_assistant_pip_umask }}'
@@ -39,7 +39,7 @@
 
     # Be aware of https://bugs.python.org/issue34224
     - name: Install PostgreSQL client
-      pip:
+      ansible.builtin.pip:
         name: psycopg2-binary
         state: forcereinstall
         umask: '{{ home_assistant_pip_umask }}'
@@ -51,7 +51,7 @@
 
     # Be aware of https://bugs.python.org/issue34224
     - name: Install Home Assistant
-      pip:
+      ansible.builtin.pip:
         name: homeassistant
         state: forcereinstall
         umask: '{{ home_assistant_pip_umask }}'
@@ -65,7 +65,7 @@
 
     # Be aware of https://bugs.python.org/issue34224
     - name: Install Home Assistant Configurator
-      pip:
+      ansible.builtin.pip:
         name: hass-configurator
         state: "{{ home_assistant_configurator_enabled|bool|ternary('forcereinstall', 'absent') }}"
         umask: '{{ home_assistant_pip_umask }}'
@@ -74,7 +74,7 @@
         virtualenv_python: '{{ home_assistant_python_executable }}'
       environment: '{{ home_assistant_pip_environment }}'
       notify: restart home assistant
-  become: yes
+  become: true
   become_user: '{{ home_assistant_daemon_user }}'
   tags: update
 
@@ -82,22 +82,24 @@
 
 - block:
     - name: Configure Home Assistant service
-      template:
+      ansible.builtin.template:
         src: supervisor.conf.j2
         dest: /etc/supervisor/conf.d/{{ home_assistant_instance_name }}.conf
         mode: '644'
       notify: restart home assistant
 
     - name: Install Home Assistant service
-      supervisorctl:
+      ansible.builtin.supervisorctl:
         name: '{{ home_assistant_instance_name }}'
         state: present
-  become: yes
+  become: true
   tags: config
 
 - name: Start Home Assistant service
-  supervisorctl:
+  ansible.builtin.supervisorctl:
     name: '{{ home_assistant_instance_name }}'
     state: started
-  become: yes
+  become: true
   tags: services
+
+...

@@ -19,3 +19,5 @@ dependencies:
   - role: supervisor
     tags: [home-assistant, dependencies]
     when: home_assistant_role_action == 'setup'
+
+...

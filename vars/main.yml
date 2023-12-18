@@ -1,2 +1,6 @@
+---
+
 home_assistant_role_actions:
   - setup
+
+...

@@ -6,3 +6,5 @@
     - import_tasks: facts.yml
     - import_tasks: '{{ home_assistant_role_action }}.yml'
   tags: home-assistant
+
+...
