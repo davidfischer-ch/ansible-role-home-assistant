@@ -34,7 +34,7 @@
         state: latest
         umask: '{{ home_assistant_pip_umask }}'
         virtualenv: '{{ home_assistant_app_directory }}/venv'
-        virtualenv_python: '{{ home_assistant_python_executable }}'
+        virtualenv_command: '{{ home_assistant_python_executable }} -m venv'
       environment: '{{ home_assistant_pip_environment }}'
 
     # Be aware of https://bugs.python.org/issue34224
@@ -45,7 +45,7 @@
         umask: '{{ home_assistant_pip_umask }}'
         version: '{{ home_assistant_psycopg2_version }}'
         virtualenv: '{{ home_assistant_app_directory }}/venv'
-        virtualenv_python: '{{ home_assistant_python_executable }}'
+        virtualenv_command: '{{ home_assistant_python_executable }} -m venv'
       environment: '{{ home_assistant_pip_environment }}'
       notify: restart home assistant
 
@@ -57,7 +57,7 @@
         umask: '{{ home_assistant_pip_umask }}'
         version: '{{ home_assistant_version }}'
         virtualenv: '{{ home_assistant_app_directory }}/venv'
-        virtualenv_python: '{{ home_assistant_python_executable }}'
+        virtualenv_command: '{{ home_assistant_python_executable }} -m venv'
       environment: '{{ home_assistant_pip_environment }}'
       notify: restart home assistant
 
@@ -71,7 +71,7 @@
         umask: '{{ home_assistant_pip_umask }}'
         version: '{{ home_assistant_configurator_version }}'
         virtualenv: '{{ home_assistant_app_directory }}/venv'
-        virtualenv_python: '{{ home_assistant_python_executable }}'
+        virtualenv_command: '{{ home_assistant_python_executable }} -m venv'
       environment: '{{ home_assistant_pip_environment }}'
       notify: restart home assistant
   become: '{{ do_become }}'
