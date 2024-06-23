@@ -1,5 +1,7 @@
 ---
 
+do_become: true
+
 # https://www.home-assistant.io/installation/nuc/
 home_assistant_packages:
   - autoconf

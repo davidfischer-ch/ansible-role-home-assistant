@@ -4,6 +4,6 @@
   ansible.builtin.supervisorctl:
     name: '{{ home_assistant_instance_name }}'
     state: restarted
-  become: true
+  become: '{{ do_become }}'
 
 ...

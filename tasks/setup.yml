@@ -6,7 +6,7 @@
   ansible.builtin.package:
     name: '{{ home_assistant_packages }}'
     state: present
-  become: true
+  become: '{{ do_become }}'
   tags: packages
 
 - block:
@@ -21,7 +21,7 @@
         - { name: '{{ home_assistant_app_directory }}',        mode: '755' }
         - { name: '{{ home_assistant_app_directory }}/config', mode: '750' }
         - { name: '{{ home_assistant_log_directory }}',        mode: '755' }
-  become: true
+  become: '{{ do_become }}'
   tags: config
 
 # Release
@@ -74,7 +74,7 @@
         virtualenv_python: '{{ home_assistant_python_executable }}'
       environment: '{{ home_assistant_pip_environment }}'
       notify: restart home assistant
-  become: true
+  become: '{{ do_become }}'
   become_user: '{{ home_assistant_daemon_user }}'
   tags: update
 
@@ -92,14 +92,14 @@
       ansible.builtin.supervisorctl:
         name: '{{ home_assistant_instance_name }}'
         state: present
-  become: true
+  become: '{{ do_become }}'
   tags: config
 
 - name: Start Home Assistant service
   ansible.builtin.supervisorctl:
     name: '{{ home_assistant_instance_name }}'
     state: started
-  become: true
+  become: '{{ do_become }}'
   tags: services
 
 ...
